@@ -6,7 +6,4 @@ A SparkPost tag is added to all outgoing civimail emails. A scheduled job is cre
 Setup Steps: 
 1) Create SparkPost account and setup SMTP in CiviCRM, save your API key. 
 2) Install this extension and enable. 
-3) Update schduled job "SparkPost Fetch Bounces" with your API key and sending email addresses, enable scheduled job.   
-
-
-***should work on 4.3+, but has not been tested 
+3) Update schduled job "SparkPost Fetch Bounces" with your API key and sending email addresses, enable scheduled job.
