@@ -5,7 +5,7 @@
   <description>Integrates SparkPost to CiviCRM, so email can be sent out over the SparkPost service and bounce can be processed in CiviCRM</description>
   <license>AGPL-3.0</license>
   <maintainer>
-    <author>Mark Rodgers, Jose Torres (Professional Exchange Service Corporation)</author>
+    <author>Mark Rodgers, Jose Torres</author>
     <email>itdept@pesc.com</email>
   </maintainer>
   <urls>
