@@ -9,7 +9,7 @@
     <email>itdept@pesc.com</email>
   </maintainer>
   <urls>
-    <url desc="Main Extension Page">https://github.com/proexchange/civicrm-sparkpost</url>
+    <url desc="Main Extension Page">https://github.com/proexchange/com.pesc.sparkpost</url>
     <url desc="Licensing">http://www.gnu.org/licenses/agpl-3.0.html</url>
   </urls>
   <releaseDate>2016-03-04</releaseDate>
