@@ -14,7 +14,7 @@ Integrates SparkPost to CiviCRM, so email can be sent out over the SparkPost ser
   * Required: Message Events: Read-only, Send via SMTP, Suppression Lists: Read/Write
 4.	Edit CiviCRM Outbound Email settings
   * Select mailer: SMTP
-  * Smtp server: smtp.sparkpostemail.com
+  * Smtp server: smtp.sparkpostmail.com
   * Port: 587
   * Authentication: Yes
   * SMTP Username: SMTP_Injection
