@@ -19,7 +19,7 @@ Integrates SparkPost to CiviCRM, so email can be sent out over the SparkPost ser
   * Authentication: Yes
   * SMTP Username: SMTP_Injection
   * SMTP Password: [api key from step 3]
-5.	Install/Enable CiviCRM/SparkPost Extension
+5.	Install/Enable CiviCRM / SparkPost Extension
 6.	Edit/Enable Scheduled Job
   * api_key=[ api key from step 3]
   * friendly_froms=[user@example.com]
@@ -28,5 +28,5 @@ Integrates SparkPost to CiviCRM, so email can be sent out over the SparkPost ser
 ##Scheduled Job Parameters  
 * friendly_from: comma separated lists, you should enter any email addresses that will be used to send email from. 
 Administer > CiviMail > From Email Addresses
-* events: comma separated list of SparkPost events that should be considered bounces in civicrm. You can usually just leave the defaults, but this can be changed to fit your needs. 
+* events: comma separated list of SparkPost events that should be considered bounces in CiviCRM. You can usually just leave the defaults, but this can be changed to fit your needs. 
 
