@@ -1,4 +1,4 @@
-# CiviCRM / SparkPost Integration
+# SparkPost / CiviCRM Integration
 Integrates SparkPost to CiviCRM, so email can be sent out over the SparkPost service and bounce can be processed in CiviCRM
 
 ## What This Extentsion Does
