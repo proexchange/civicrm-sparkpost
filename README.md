@@ -2,7 +2,7 @@
 Integrates SparkPost to CiviCRM, so email can be sent out over the SparkPost service and bounces can be processed in CiviCRM
 
 ## What This Extension Does
-* Adds a tag to all outgoing CiviMail messages. The civi-generated return-path is added as a SparkPost tag, because like most SMTP services, Sparkpost strips out the return-path header for its own.
+* Adds a tag to all outgoing CiviMail messages. The civi-generated return-path is added as a SparkPost tag, because like most SMTP services, SparkPost strips out the return-path header for its own.
 * Adds a scheduled job that uses SparkPost API to fetch bounce events and processes their bounces in CiviCRM. I use the hash included in the SparkPost tag
 * Adds Bounce type and Pattern that helps with marking emails on hold in CiviCRM that SparkPost has added to it's suppression list
 
@@ -28,5 +28,5 @@ Integrates SparkPost to CiviCRM, so email can be sent out over the SparkPost ser
 ##Scheduled Job Parameters  
 * friendly_from: comma separated lists, you should enter any email addresses that will be used to send email from. 
 Administer > CiviMail > From Email Addresses
-* events: comma separated list of sparkpost events that should be considered bounces in civicrm. You can usually just leave the defaults, but this can be changed to fit your needs. 
+* events: comma separated list of SparkPost events that should be considered bounces in civicrm. You can usually just leave the defaults, but this can be changed to fit your needs. 
 
