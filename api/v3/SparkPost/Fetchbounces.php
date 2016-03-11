@@ -25,8 +25,12 @@ function _civicrm_api3_spark_post_Fetchbounces_spec(&$spec) {
  */
 function civicrm_api3_spark_post_Fetchbounces($params) {
   $lgts = civiapi_recent_sparkpost();
-  $fromtime = gmdate('Y-m-d',strtotime($lgts)).'T'.gmdate('H:i',strtotime($lgts));
-  $ch = curl_init('https://api.sparkpost.com/api/v1/message-events?friendly_froms='.$params['friendly_froms'].'&events='.$params['events'].'&from='.$fromtime);
+  if(!empty($lgts)) {
+    $fromtime = gmdate('Y-m-d',strtotime($lgts)).'T'.gmdate('H:i',strtotime($lgts));
+    $ch = curl_init('https://api.sparkpost.com/api/v1/message-events?friendly_froms='.$params['friendly_froms'].'&events='.$params['events'].'&from='.$fromtime);
+  } else {
+    $ch = curl_init('https://api.sparkpost.com/api/v1/message-events?friendly_froms='.$params['friendly_froms'].'&events='.$params['events']);    
+  }
   $headers = array(
     'Accept: application/json',
     'Authorization: ' . $params['api_key']
