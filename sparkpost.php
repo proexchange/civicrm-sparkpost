@@ -200,12 +200,20 @@ events=bounce,delay,policy_rejection,out_of_band,spam_complaint - required'
  * @return datetime
  */
 function civiapi_recent_sparkpost() {
-	$result = civicrm_api3('JobLog', 'get', array(
-		'sequential' => 1,
-		'name' => "SparkPost Fetch Bounces",
-		'description' => array('LIKE' => "%Finished execution of SparkPost Fetch Bounces with result: Success%"),
-		'options' => array('sort' => "run_time DESC", 'limit' => 1),
-		'return' => array("run_time"),
-	));
-	return $result['values'][0]['run_time'];
+  try {
+    $result = civicrm_api3('JobLog', 'get', array(
+      'sequential' => 1,
+      'name' => "SparkPost Fetch Bounces",
+      'description' => array('LIKE' => "%Finished execution of SparkPost Fetch Bounces with result: Success%"),
+      'options' => array('sort' => "run_time DESC", 'limit' => 1),
+      'return' => array("run_time"),
+    ));
+  }
+  catch (CiviCRM_API3_Exception $e) {
+    $error = $e->getMessage();
+  }
+  if (strpos($error, 'API (JobLog, get) does not exist') !== false) {
+    return 0;
+  }
+  return $result['values'][0]['run_time'];
 }
