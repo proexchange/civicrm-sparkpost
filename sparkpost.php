@@ -1,25 +1,46 @@
 <?php
 
-require_once 'sparkpost.civix.php';
+// AUTO-GENERATED FILE -- Civix may overwrite any changes made to this file
 
 /**
- * Implements hook_civicrm_config().
+ * (Delegated) Implements hook_civicrm_config().
  *
  * @link http://wiki.civicrm.org/confluence/display/CRMDOC/hook_civicrm_config
  */
-function sparkpost_civicrm_config(&$config) {
-  _sparkpost_civix_civicrm_config($config);
+function _sparkpost_civix_civicrm_config(&$config = NULL) {
+  static $configured = FALSE;
+  if ($configured) {
+    return;
+  }
+  $configured = TRUE;
+
+  $template =& CRM_Core_Smarty::singleton();
+
+  $extRoot = dirname(__FILE__) . DIRECTORY_SEPARATOR;
+  $extDir = $extRoot . 'templates';
+
+  if ( is_array( $template->template_dir ) ) {
+      array_unshift( $template->template_dir, $extDir );
+  }
+  else {
+      $template->template_dir = array( $extDir, $template->template_dir );
+  }
+
+  $include_path = $extRoot . PATH_SEPARATOR . get_include_path( );
+  set_include_path($include_path);
 }
 
 /**
- * Implements hook_civicrm_xmlMenu().
+ * (Delegated) Implements hook_civicrm_xmlMenu().
  *
- * @param array $files
+ * @param $files array(string)
  *
  * @link http://wiki.civicrm.org/confluence/display/CRMDOC/hook_civicrm_xmlMenu
  */
-function sparkpost_civicrm_xmlMenu(&$files) {
-  _sparkpost_civix_civicrm_xmlMenu($files);
+function _sparkpost_civix_civicrm_xmlMenu(&$files) {
+  foreach (_sparkpost_civix_glob(__DIR__ . '/xml/Menu/*.xml') as $file) {
+    $files[] = $file;
+  }
 }
 
 /**
@@ -27,8 +48,11 @@ function sparkpost_civicrm_xmlMenu(&$files) {
  *
  * @link http://wiki.civicrm.org/confluence/display/CRMDOC/hook_civicrm_install
  */
-function sparkpost_civicrm_install() {
-  _sparkpost_civix_civicrm_install();
+function _sparkpost_civix_civicrm_install() {
+  _sparkpost_civix_civicrm_config();
+  if ($upgrader = _sparkpost_civix_upgrader()) {
+    $upgrader->onInstall();
+  }
 }
 
 /**
@@ -36,186 +60,289 @@ function sparkpost_civicrm_install() {
  *
  * @link http://wiki.civicrm.org/confluence/display/CRMDOC/hook_civicrm_uninstall
  */
-function sparkpost_civicrm_uninstall() {
-  _sparkpost_civix_civicrm_uninstall();
-}
-
-/**
- * Implements hook_civicrm_enable().
- *
- * @link http://wiki.civicrm.org/confluence/display/CRMDOC/hook_civicrm_enable
- */
-function sparkpost_civicrm_enable() {
-  _sparkpost_civix_civicrm_enable();
-  sparkpost_job_create();
-  
-  if(!CRM_Core_DAO::singleValueQuery("SELECT count(id) as 'COUNT' FROM civicrm_mailing_bounce_type WHERE `name` = 'SparkPost'")) {
-    CRM_Core_DAO::singleValueQuery("INSERT INTO `civicrm_mailing_bounce_type` (`name`, `description`, `hold_threshold`) VALUES ('SparkPost', 'SparkPost supression list', 1)");
-    $bounce_type_id = CRM_Core_DAO::singleValueQuery("SELECT `id` FROM `civicrm_mailing_bounce_type` WHERE `name` = 'SparkPost'");
-    CRM_Core_DAO::singleValueQuery("INSERT INTO `civicrm_mailing_bounce_pattern` (`bounce_type_id`, `pattern`) VALUES ($bounce_type_id, 'recipient address suppressed due to customer policy')");
+function _sparkpost_civix_civicrm_uninstall() {
+  _sparkpost_civix_civicrm_config();
+  if ($upgrader = _sparkpost_civix_upgrader()) {
+    $upgrader->onUninstall();
   }
 }
 
 /**
- * Implements hook_civicrm_disable().
+ * (Delegated) Implements hook_civicrm_enable().
  *
- * @link http://wiki.civicrm.org/confluence/display/CRMDOC/hook_civicrm_disable
+ * @link http://wiki.civicrm.org/confluence/display/CRMDOC/hook_civicrm_enable
  */
-function sparkpost_civicrm_disable() {
-  _sparkpost_civix_civicrm_disable();
+function _sparkpost_civix_civicrm_enable() {
+  _sparkpost_civix_civicrm_config();
+  if ($upgrader = _sparkpost_civix_upgrader()) {
+    if (is_callable(array($upgrader, 'onEnable'))) {
+      $upgrader->onEnable();
+    }
+  }
 }
 
 /**
- * Implements hook_civicrm_upgrade().
+ * (Delegated) Implements hook_civicrm_disable().
+ *
+ * @link http://wiki.civicrm.org/confluence/display/CRMDOC/hook_civicrm_disable
+ * @return mixed
+ */
+function _sparkpost_civix_civicrm_disable() {
+  _sparkpost_civix_civicrm_config();
+  if ($upgrader = _sparkpost_civix_upgrader()) {
+    if (is_callable(array($upgrader, 'onDisable'))) {
+      $upgrader->onDisable();
+    }
+  }
+}
+
+/**
+ * (Delegated) Implements hook_civicrm_upgrade().
  *
  * @param $op string, the type of operation being performed; 'check' or 'enqueue'
  * @param $queue CRM_Queue_Queue, (for 'enqueue') the modifiable list of pending up upgrade tasks
  *
- * @return mixed
- *   Based on op. for 'check', returns array(boolean) (TRUE if upgrades are pending)
+ * @return mixed  based on op. for 'check', returns array(boolean) (TRUE if upgrades are pending)
  *                for 'enqueue', returns void
  *
  * @link http://wiki.civicrm.org/confluence/display/CRMDOC/hook_civicrm_upgrade
  */
-function sparkpost_civicrm_upgrade($op, CRM_Queue_Queue $queue = NULL) {
-  return _sparkpost_civix_civicrm_upgrade($op, $queue);
+function _sparkpost_civix_civicrm_upgrade($op, CRM_Queue_Queue $queue = NULL) {
+  if ($upgrader = _sparkpost_civix_upgrader()) {
+    return $upgrader->onUpgrade($op, $queue);
+  }
 }
 
 /**
- * Implements hook_civicrm_managed().
+ * @return CRM_Sparkpost_Upgrader
+ */
+function _sparkpost_civix_upgrader() {
+  if (!file_exists(__DIR__.'/CRM/Sparkpost/Upgrader.php')) {
+    return NULL;
+  }
+  else {
+    return CRM_Sparkpost_Upgrader_Base::instance();
+  }
+}
+
+/**
+ * Search directory tree for files which match a glob pattern
  *
- * Generate a list of entities to create/deactivate/delete when this module
- * is installed, disabled, uninstalled.
+ * Note: Dot-directories (like "..", ".git", or ".svn") will be ignored.
+ * Note: In Civi 4.3+, delegate to CRM_Utils_File::findFiles()
+ *
+ * @param $dir string, base dir
+ * @param $pattern string, glob pattern, eg "*.txt"
+ * @return array(string)
+ */
+function _sparkpost_civix_find_files($dir, $pattern) {
+  if (is_callable(array('CRM_Utils_File', 'findFiles'))) {
+    return CRM_Utils_File::findFiles($dir, $pattern);
+  }
+
+  $todos = array($dir);
+  $result = array();
+  while (!empty($todos)) {
+    $subdir = array_shift($todos);
+    foreach (_sparkpost_civix_glob("$subdir/$pattern") as $match) {
+      if (!is_dir($match)) {
+        $result[] = $match;
+      }
+    }
+    if ($dh = opendir($subdir)) {
+      while (FALSE !== ($entry = readdir($dh))) {
+        $path = $subdir . DIRECTORY_SEPARATOR . $entry;
+        if ($entry{0} == '.') {
+        } elseif (is_dir($path)) {
+          $todos[] = $path;
+        }
+      }
+      closedir($dh);
+    }
+  }
+  return $result;
+}
+/**
+ * (Delegated) Implements hook_civicrm_managed().
+ *
+ * Find any *.mgd.php files, merge their content, and return.
  *
  * @link http://wiki.civicrm.org/confluence/display/CRMDOC/hook_civicrm_managed
  */
-function sparkpost_civicrm_managed(&$entities) {
-  _sparkpost_civix_civicrm_managed($entities);
+function _sparkpost_civix_civicrm_managed(&$entities) {
+  $mgdFiles = _sparkpost_civix_find_files(__DIR__, '*.mgd.php');
+  foreach ($mgdFiles as $file) {
+    $es = include $file;
+    foreach ($es as $e) {
+      if (empty($e['module'])) {
+        $e['module'] = 'com.pesc.sparkpost';
+      }
+      $entities[] = $e;
+    }
+  }
 }
 
 /**
- * Implements hook_civicrm_caseTypes().
+ * (Delegated) Implements hook_civicrm_caseTypes().
  *
- * Generate a list of case-types.
- *
- * @param array $caseTypes
+ * Find any and return any files matching "xml/case/*.xml"
  *
  * Note: This hook only runs in CiviCRM 4.4+.
  *
  * @link http://wiki.civicrm.org/confluence/display/CRMDOC/hook_civicrm_caseTypes
  */
-function sparkpost_civicrm_caseTypes(&$caseTypes) {
-  _sparkpost_civix_civicrm_caseTypes($caseTypes);
+function _sparkpost_civix_civicrm_caseTypes(&$caseTypes) {
+  if (!is_dir(__DIR__ . '/xml/case')) {
+    return;
+  }
+
+  foreach (_sparkpost_civix_glob(__DIR__ . '/xml/case/*.xml') as $file) {
+    $name = preg_replace('/\.xml$/', '', basename($file));
+    if ($name != CRM_Case_XMLProcessor::mungeCaseType($name)) {
+      $errorMessage = sprintf("Case-type file name is malformed (%s vs %s)", $name, CRM_Case_XMLProcessor::mungeCaseType($name));
+      CRM_Core_Error::fatal($errorMessage);
+      // throw new CRM_Core_Exception($errorMessage);
+    }
+    $caseTypes[$name] = array(
+      'module' => 'com.pesc.sparkpost',
+      'name' => $name,
+      'file' => $file,
+    );
+  }
 }
 
 /**
- * Implements hook_civicrm_angularModules().
+ * (Delegated) Implements hook_civicrm_angularModules().
  *
- * Generate a list of Angular modules.
+ * Find any and return any files matching "ang/*.ang.php"
  *
- * Note: This hook only runs in CiviCRM 4.5+. It may
- * use features only available in v4.6+.
+ * Note: This hook only runs in CiviCRM 4.5+.
  *
- * @link http://wiki.civicrm.org/confluence/display/CRMDOC/hook_civicrm_caseTypes
+ * @link http://wiki.civicrm.org/confluence/display/CRMDOC/hook_civicrm_angularModules
  */
-function sparkpost_civicrm_angularModules(&$angularModules) {
-_sparkpost_civix_civicrm_angularModules($angularModules);
+function _sparkpost_civix_civicrm_angularModules(&$angularModules) {
+  if (!is_dir(__DIR__ . '/ang')) {
+    return;
+  }
+
+  $files = _sparkpost_civix_glob(__DIR__ . '/ang/*.ang.php');
+  foreach ($files as $file) {
+    $name = preg_replace(':\.ang\.php$:', '', basename($file));
+    $module = include $file;
+    if (empty($module['ext'])) {
+      $module['ext'] = 'com.pesc.sparkpost';
+    }
+    $angularModules[$name] = $module;
+  }
 }
 
 /**
- * Implements hook_civicrm_alterSettingsFolders().
+ * Glob wrapper which is guaranteed to return an array.
+ *
+ * The documentation for glob() says, "On some systems it is impossible to
+ * distinguish between empty match and an error." Anecdotally, the return
+ * result for an empty match is sometimes array() and sometimes FALSE.
+ * This wrapper provides consistency.
+ *
+ * @link http://php.net/glob
+ * @param string $pattern
+ * @return array, possibly empty
+ */
+function _sparkpost_civix_glob($pattern) {
+  $result = glob($pattern);
+  return is_array($result) ? $result : array();
+}
+
+/**
+ * Inserts a navigation menu item at a given place in the hierarchy.
+ *
+ * @param array $menu - menu hierarchy
+ * @param string $path - path where insertion should happen (ie. Administer/System Settings)
+ * @param array $item - menu you need to insert (parent/child attributes will be filled for you)
+ */
+function _sparkpost_civix_insert_navigation_menu(&$menu, $path, $item) {
+  // If we are done going down the path, insert menu
+  if (empty($path)) {
+    $menu[] = array(
+      'attributes' => array_merge(array(
+        'label'      => CRM_Utils_Array::value('name', $item),
+        'active'     => 1,
+      ), $item),
+    );
+    return TRUE;
+  }
+  else {
+    // Find an recurse into the next level down
+    $found = false;
+    $path = explode('/', $path);
+    $first = array_shift($path);
+    foreach ($menu as $key => &$entry) {
+      if ($entry['attributes']['name'] == $first) {
+        if (!$entry['child']) $entry['child'] = array();
+        $found = _sparkpost_civix_insert_navigation_menu($entry['child'], implode('/', $path), $item, $key);
+      }
+    }
+    return $found;
+  }
+}
+
+/**
+ * (Delegated) Implements hook_civicrm_navigationMenu().
+ */
+function _sparkpost_civix_navigationMenu(&$nodes) {
+  if (!is_callable(array('CRM_Core_BAO_Navigation', 'fixNavigationMenu'))) {
+    _sparkpost_civix_fixNavigationMenu($nodes);
+  }
+}
+
+/**
+ * Given a navigation menu, generate navIDs for any items which are
+ * missing them.
+ */
+function _sparkpost_civix_fixNavigationMenu(&$nodes) {
+  $maxNavID = 1;
+  array_walk_recursive($nodes, function($item, $key) use (&$maxNavID) {
+    if ($key === 'navID') {
+      $maxNavID = max($maxNavID, $item);
+    }
+    });
+  _sparkpost_civix_fixNavigationMenuItems($nodes, $maxNavID, NULL);
+}
+
+function _sparkpost_civix_fixNavigationMenuItems(&$nodes, &$maxNavID, $parentID) {
+  $origKeys = array_keys($nodes);
+  foreach ($origKeys as $origKey) {
+    if (!isset($nodes[$origKey]['attributes']['parentID']) && $parentID !== NULL) {
+      $nodes[$origKey]['attributes']['parentID'] = $parentID;
+    }
+    // If no navID, then assign navID and fix key.
+    if (!isset($nodes[$origKey]['attributes']['navID'])) {
+      $newKey = ++$maxNavID;
+      $nodes[$origKey]['attributes']['navID'] = $newKey;
+      $nodes[$newKey] = $nodes[$origKey];
+      unset($nodes[$origKey]);
+      $origKey = $newKey;
+    }
+    if (isset($nodes[$origKey]['child']) && is_array($nodes[$origKey]['child'])) {
+      _sparkpost_civix_fixNavigationMenuItems($nodes[$origKey]['child'], $maxNavID, $nodes[$origKey]['attributes']['navID']);
+    }
+  }
+}
+
+/**
+ * (Delegated) Implements hook_civicrm_alterSettingsFolders().
  *
  * @link http://wiki.civicrm.org/confluence/display/CRMDOC/hook_civicrm_alterSettingsFolders
  */
-function sparkpost_civicrm_alterSettingsFolders(&$metaDataFolders = NULL) {
-  _sparkpost_civix_civicrm_alterSettingsFolders($metaDataFolders);
-}
-
-function sparkpost_civicrm_alterMailParams(&$params, $context) {
-  $path = $params['Return-Path'];
-  $tags = array('metadata' => array('civi-rp' => $path));
-  $json = json_encode($tags);
-  $params['X-MSYS-API'] = $json."\n";
-}
-
-/**
- * Perform CiviCRM API call to grab event queue from hash
- * @param  string $h  hash value
- * @return array
- */
-function sparkpost_queue($h) {
-  $result = civicrm_api3('MailingEventQueue', 'get', array(
-    'sequential' => 1,
-    'hash' => $h,
-  ));
-  return $result['values'][0];
-}
-
-/**
- * Perform CiviCRM API call to track a bounce in the database
- * @param  int $jid
- * @param  int $eqid
- * @param  string $hash
- * @param  string $body
- * @return boolean
- */
-function sparkpost_addbounce($jid, $eqid, $hash, $body) {
-  $result = civicrm_api3('Mailing', 'event_bounce', array(
-    'sequential' => 1,
-    'job_id' => $jid,
-    'event_queue_id' => $eqid,
-    'hash' => $hash,
-    'body' => $body
-  ));
-  return $result;
-}
-
-/**
- * Create Hourly Scheduled Job for SparkPost.Fetchbounces
- * @return boolean success
- */
-function sparkpost_job_create() {
-  $result = civicrm_api3('Job', 'get', array('sequential' => 1, 'name' => 'SparkPost Fetch Bounces'));
-  if($result['count'] < 1) {
-    $result = civicrm_api3('Job', 'create', array(
-      'sequential' => 1,
-      'run_frequency' => 'Hourly',
-      'name' => 'SparkPost Fetch Bounces',
-      'description' => 'Enables CiviCRM to communicate with SparkPost over a REST API to track bounces in CiviCRM',
-      'is_active' => false,
-      'api_entity' => 'SparkPost',
-      'api_action' => 'Fetchbounces',
-      'parameters' => 'api_key=enterkeyhere - required
-friendly_froms=info@example.com - required
-events=bounce,delay,policy_rejection,out_of_band,spam_complaint - required'
-    ));
-    return $result['is_error'];
-  } else {
-    return false;
+function _sparkpost_civix_civicrm_alterSettingsFolders(&$metaDataFolders = NULL) {
+  static $configured = FALSE;
+  if ($configured) {
+    return;
   }
-}
+  $configured = TRUE;
 
-/**
- * Perform CiviCRM API call to grab most recent successful Sparkpost successful job
- * @return datetime
- */
-function civiapi_recent_sparkpost() {
-  try {
-    $result = civicrm_api3('JobLog', 'get', array(
-      'sequential' => 1,
-      'name' => "SparkPost Fetch Bounces",
-      'description' => array('LIKE' => "%Finished execution of SparkPost Fetch Bounces with result: Success%"),
-      'options' => array('sort' => "run_time DESC", 'limit' => 1),
-      'return' => array("run_time"),
-    ));
+  $settingsDir = __DIR__ . DIRECTORY_SEPARATOR . 'settings';
+  if(is_dir($settingsDir) && !in_array($settingsDir, $metaDataFolders)) {
+    $metaDataFolders[] = $settingsDir;
   }
-  catch (CiviCRM_API3_Exception $e) {
-    $error = $e->getMessage();
-  }
-  if(!empty($error)){
-     if (strpos($error, 'API (JobLog, get) does not exist') !== false) {
-       return 0;
-     }
-   }
-  return $result['values'][0]['run_time'];
 }
