@@ -212,8 +212,10 @@ function civiapi_recent_sparkpost() {
   catch (CiviCRM_API3_Exception $e) {
     $error = $e->getMessage();
   }
-  if (strpos($error, 'API (JobLog, get) does not exist') !== false) {
-    return 0;
-  }
+  if(!empty($error)){
+     if (strpos($error, 'API (JobLog, get) does not exist') !== false) {
+       return 0;
+     }
+   }
   return $result['values'][0]['run_time'];
 }
