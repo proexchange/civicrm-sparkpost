@@ -24,6 +24,7 @@ Integrates SparkPost to CiviCRM, so email can be sent out over the SparkPost ser
   * api_key=[ api key from step 3]
   * friendly_froms=[user@example.com - this is case-sensative, match CiviCRM from address]
   * events=[leave defaults, remove “- required”]   
+  * date_filter=[0 OR 1 - optional, only process bounces since the last time this scheduled job was run successfully]
 
 ##Scheduled Job Parameters  
 * friendly_from: comma separated lists, you should enter any email addresses that will be used to send email from. 
