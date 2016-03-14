@@ -10,8 +10,8 @@
  */
 function _civicrm_api3_spark_post_Fetchbounces_spec(&$spec) {
   $spec['api_key']['api.required'] = 1;
-  $spec['friendly_froms']['api.required'] = 1;
   $spec['events']['api.required'] = 1;
+  $spec['friendly_froms']['api.required'] = 0;
   $spec['date_filter']['api.required'] = 0;
 }
 
@@ -26,15 +26,16 @@ function _civicrm_api3_spark_post_Fetchbounces_spec(&$spec) {
  */
 function civicrm_api3_spark_post_Fetchbounces($params) {
   $lgts = civiapi_recent_sparkpost();
-  
+  $ch_api ='https://api.sparkpost.com/api/v1/message-events?events='.$params['events'];
   
   if(!empty($lgts) && !empty($params['date_filter'])) {
     $fromtime = gmdate('Y-m-d',strtotime($lgts)).'T'.gmdate('H:i',strtotime($lgts));
-    $ch_api ='https://api.sparkpost.com/api/v1/message-events?friendly_froms='.$params['friendly_froms'].'&events='.$params['events'].'&from='.$fromtime;
-  } else {
-    $ch_api ='https://api.sparkpost.com/api/v1/message-events?friendly_froms='.$params['friendly_froms'].'&events='.$params['events'];
+    $ch_api .='&from='.$fromtime;
   }
-  watchdog('sparkpost',$ch_api);
+  if(!empty($params['friendly_froms'])){
+    $ch_api.='&friendly_froms='.$params['friendly_froms'];
+  }
+  
   $ch = curl_init($ch_api);
   $headers = array(
     'Accept: application/json',
