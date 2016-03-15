@@ -187,8 +187,7 @@ function sparkpost_job_create() {
       'api_action' => 'Fetchbounces',
       'parameters' => 'api_key=enterkeyhere - required
 events=bounce,delay,policy_rejection,out_of_band,spam_complaint - required
-friendly_froms=info@example.com - optional
-date_filter=0 - optional'
+date_filter=1 - optional'
     ));
     return $result['is_error'];
   } else {
@@ -219,4 +218,24 @@ function civiapi_recent_sparkpost() {
      }
    }
   return $result['values'][0]['run_time'];
+}
+/**
+ * Perform CiviCRM API call to grab from addresses
+ * @return string
+ */
+function getFromAddresses(){
+  $result = civicrm_api3('OptionValue', 'get', array(
+    'sequential' => 1,
+    'return' => "label",
+    'option_group_id' => "from_email_address",
+  ));
+  $first=TRUE;
+  $froms = '';
+  foreach($result['values'] as $item){
+    $itemparts = preg_split("/<|>/",$item['label']);
+    $froms.=$itemparts[1];
+    if($first) $froms.=',';
+    $first=FALSE;
+  }
+  return $froms;
 }
