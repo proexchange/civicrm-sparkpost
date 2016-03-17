@@ -5,6 +5,7 @@ Integrates SparkPost to CiviCRM, so email can be sent out over the SparkPost ser
 * Adds a tag to all outgoing CiviMail messages. The civi-generated return-path is added as a SparkPost tag, because like most SMTP services, SparkPost strips out the return-path header for its own.
 * Adds a scheduled job that uses SparkPost API to fetch bounce events and processes their bounces in CiviCRM. I use the hash included in the SparkPost tag
 * Adds Bounce type and Pattern that helps with marking emails on hold in CiviCRM that SparkPost has added to it's suppression list
+* Inserts the mailing name in the SMTP message to SparkPost as the Campaign ID, useful when looking up results in SparkPost Web UI  
 
 ##Setup Steps
 1. Create SparkPost Account
@@ -21,12 +22,12 @@ Integrates SparkPost to CiviCRM, so email can be sent out over the SparkPost ser
   * SMTP Password: [api key from step 3]
 5. Install/Enable CiviCRM / SparkPost Extension
 6. Edit/Enable Scheduled Job
-  * api_key=[ api key from step 3]
-  * events=[leave defaults, remove “- required”]
-  * date_filter=[0 OR 1 - optional]
+  * api_key=[ api key from step 3 -  required]
+  * events=[-optional]
+  * date_filter=[1 OR 0, defaults to 1 - optional]
 
-##Scheduled Job Parameters  
-* events: comma separated list of SparkPost events that should be considered bounces in CiviCRM. You can usually just leave the defaults, but this can be changed to fit your needs. 
+##Scheduled Job Parameters Notes  
+* events: This is now an optional field. It defaaults to 'bounce,delay,policy_rejection,out_of_band,spam_complaint' if not specified. Comma separated list of SparkPost events that should be considered bounces in CiviCRM. You can usually just leave the defaults, but this can be changed to fit your needs. 
 * date_filter: If you have this set to 1, this will only query bounce events from SparkPost that have occurred since the scheduled job last ran successfully. This should make things run a little faster because there will be fewer results to parse through from SparkPost.
 
 NOTE: friendly_froms scheduled job parameter has been removed. This value is now filled with the values from Administer > CiviMail > From Email Addresses
