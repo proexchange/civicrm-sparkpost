@@ -48,7 +48,13 @@ function sparkpost_civicrm_uninstall() {
 function sparkpost_civicrm_enable() {
   _sparkpost_civix_civicrm_enable();
   sparkpost_job_create();
+
+  //Check and fix bad field type on civicrm_mailing_bounce_type.name
+  if(CRM_Core_DAO::singleValueQuery("SELECT DATA_TYPE FROM INFORMATION_SCHEMA.COLUMNS WHERE table_name = 'civicrm_mailing_bounce_type' AND COLUMN_NAME = 'name'")=='enum'){
+    CRM_Core_DAO::singleValueQuery("ALTER TABLE civicrm_mailing_bounce_type CHANGE name name VARCHAR(24) CHARACTER SET utf8 COLLATE utf8_unicode_ci NOT NULL COMMENT 'Type of bounce'");
+  }
   
+  //Add bounce type and pattern to database
   if(!CRM_Core_DAO::singleValueQuery("SELECT count(id) as 'COUNT' FROM civicrm_mailing_bounce_type WHERE `name` = 'SparkPost'")) {
     CRM_Core_DAO::singleValueQuery("INSERT INTO `civicrm_mailing_bounce_type` (`name`, `description`, `hold_threshold`) VALUES ('SparkPost', 'SparkPost supression list', 1)");
     $bounce_type_id = CRM_Core_DAO::singleValueQuery("SELECT `id` FROM `civicrm_mailing_bounce_type` WHERE `name` = 'SparkPost'");
@@ -133,7 +139,11 @@ function sparkpost_civicrm_alterSettingsFolders(&$metaDataFolders = NULL) {
 
 function sparkpost_civicrm_alterMailParams(&$params, $context) {
   $path = $params['Return-Path'];
-  $tags = array('metadata' => array('civi-rp' => $path));
+  $subject = $params['Subject'];
+  $temp = explode('.', $path);
+  $hash = substr($temp[3], 0, strpos($temp[3], '@'));
+  $mailing = sparkpost_mailing($hash);
+  $tags = array('metadata' => array('civi-rp' => $path),'campaign_id' => $mailing['name']);
   $json = json_encode($tags);
   $params['X-MSYS-API'] = $json."\n";
 }
@@ -148,6 +158,42 @@ function sparkpost_queue($h) {
     'sequential' => 1,
     'hash' => $h,
   ));
+  return $result['values'][0];
+}
+
+
+/**
+ * Perform CiviCRM API call to grab mailing job from hash
+ * @param  string $h  hash value
+ * @return array
+ */
+function sparkpost_mailingjob($h) {
+  $r1 = sparkpost_queue($h);
+  $job_id = $r1['job_id'];
+
+  $result = civicrm_api3('MailingJob', 'get', array(
+    'sequential' => 1,
+    'id' => $job_id,
+  ));
+
+  return $result['values'][0];
+}
+
+
+/**
+ * Perform CiviCRM API call to grab mailing from hash
+ * @param  string $h  hash value
+ * @return array
+ */
+function sparkpost_mailing($h) {
+  $r1 = sparkpost_mailingjob($h);
+  $mailing_id = $r1['mailing_id'];
+
+  $result = civicrm_api3('Mailing', 'get', array(
+    'sequential' => 1,
+    'id' => $mailing_id,
+  ));
+
   return $result['values'][0];
 }
 
@@ -175,7 +221,8 @@ function sparkpost_addbounce($jid, $eqid, $hash, $body) {
  * @return boolean success
  */
 function sparkpost_job_create() {
-  $result = civicrm_api3('Job', 'get', array('sequential' => 1, 'name' => 'SparkPost Fetch Bounces'));
+  $currentDomainid=CRM_Core_Config::domainID();
+  $result = civicrm_api3('Job', 'get', array('sequential' => 1, 'name' => 'SparkPost Fetch Bounces', 'domain_id' => $currentDomainid));
   if($result['count'] < 1) {
     $result = civicrm_api3('Job', 'create', array(
       'sequential' => 1,
@@ -185,8 +232,9 @@ function sparkpost_job_create() {
       'is_active' => false,
       'api_entity' => 'SparkPost',
       'api_action' => 'Fetchbounces',
+      'domain_id' => $currentDomainid,
       'parameters' => 'api_key=enterkeyhere - required
-events=bounce,delay,policy_rejection,out_of_band,spam_complaint - required
+events=bounce,delay,policy_rejection,out_of_band,spam_complaint - optional
 date_filter=1 - optional'
     ));
     return $result['is_error'];

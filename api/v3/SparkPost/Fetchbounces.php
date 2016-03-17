@@ -10,7 +10,7 @@
  */
 function _civicrm_api3_spark_post_Fetchbounces_spec(&$spec) {
   $spec['api_key']['api.required'] = 1;
-  $spec['events']['api.required'] = 1;
+  $spec['events']['api.required'] = 0;
   $spec['date_filter']['api.required'] = 0;
 }
 
@@ -24,6 +24,7 @@ function _civicrm_api3_spark_post_Fetchbounces_spec(&$spec) {
  * @throws API_Exception
  */
 function civicrm_api3_spark_post_Fetchbounces($params) {
+  if(empty($params['events'])) $params['events']="bounce,delay,policy_rejection,out_of_band,spam_complaint";
   $ch_api ='https://api.sparkpost.com/api/v1/message-events?events='.$params['events'].'&friendly_froms='.getFromAddresses();  
   if(!empty($params['date_filter'])) {
     $lgts = civiapi_recent_sparkpost();
