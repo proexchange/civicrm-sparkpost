@@ -24,25 +24,32 @@ function _civicrm_api3_spark_post_Fetchbounces_spec(&$spec) {
  * @throws API_Exception
  */
 function civicrm_api3_spark_post_Fetchbounces($params) {
+  sparkpost_addOptionValues();
+  sparkpost_mailingsCheck();
+
+  //Prepare API call to SparkPost
   if(empty($params['events'])) $params['events']="bounce,delay,policy_rejection,out_of_band,spam_complaint";
-  $ch_api ='https://api.sparkpost.com/api/v1/message-events?events='.$params['events'].'&friendly_froms='.getFromAddresses();  
+  $ch_api ='https://api.sparkpost.com/api/v1/message-events?events='.$params['events'].'&friendly_froms='.sparkpost_getFromAddresses();  
   if(!empty($params['date_filter'])) {
-    $lgts = civiapi_recent_sparkpost();
-    if(!empty($lgts)) $ch_api .='&from='.gmdate('Y-m-d',strtotime($lgts)).'T'.gmdate('H:i',strtotime($lgts));
+    $lgts = sparkpost_recentFetchSuccess();
+    if(!empty($lgts))
+      $ch_api .='&from='.gmdate('Y-m-d',strtotime($lgts)).'T'.gmdate('H:i',strtotime($lgts));
   }
   $ch = curl_init($ch_api);
   $headers = array(
     'Accept: application/json',
     'Authorization: ' . $params['api_key']
   );
+
+  //Make API call to SparkPost
   curl_setopt($ch, CURLOPT_HTTPHEADER, $headers); 
   curl_setopt($ch, CURLOPT_RETURNTRANSFER, 1);
   $json = curl_exec($ch);
   curl_close($ch);
-
   $results = json_decode($json);
-  $holder = array();
 
+  //
+  $holder = array();
   if(!empty($results->errors))
     return civicrm_api3_create_error(ts($results->errors['0']->message), array('error_code' => 1, 'field' => 'api_key'));
   else if(empty($results))
@@ -50,43 +57,42 @@ function civicrm_api3_spark_post_Fetchbounces($params) {
 
   // Get bounces tracked in SparkPost
   foreach($results->results as $row) {
-    if(!empty($row->rcpt_meta->{'civi-rp'})) {
-      // Get hash
-      $temp = explode('.', $row->rcpt_meta->{'civi-rp'});
-      $hash = substr($temp[3], 0, strpos($temp[3], '@'));
-
-      $queue = sparkpost_queue($hash);
-
+    if(!empty($row->rcpt_meta->{'civi_hash'})) {
       if($row->type == 'spam_complaint')
         $reason = 'rejected as spam';
       else
         $reason = $row->raw_reason;
       
       $temparr = array(
-        'eventqueue' => $queue,
-        'return-path' => $row->rcpt_meta->{'civi-rp'},
+        'type' => $row->rcpt_meta->{'civi_type'},
+        'activityid' => $row->rcpt_meta->{'civi_activityid'},
+        'eventqueue' => $row->rcpt_meta->{'civi_queue'},
+        'jobid' => $row->rcpt_meta->{'civi_jobid'},
+        'hash' => $row->rcpt_meta->{'civi_hash'},
         'reason' => $reason
       );
       array_push($holder, $temparr);
     }
   }
 
+
   // Mark bounces in CiviCRM
   $bounces = array();
   foreach($holder as $bounce) {
-    $eqid = $bounce['eventqueue']['id'];
-    $hasBounce = CRM_Core_DAO::singleValueQuery("SELECT count(id) as 'COUNT' FROM civicrm_mailing_event_bounce WHERE event_queue_id = $eqid");
+    $hasBounce = CRM_Core_DAO::singleValueQuery("SELECT count(id) as 'COUNT' FROM civicrm_mailing_event_bounce WHERE event_queue_id = ".$bounce['eventqueue']);
     if($hasBounce < 1) {
-      sparkpost_addbounce($bounce['eventqueue']['job_id'], $bounce['eventqueue']['id'], $bounce['eventqueue']['hash'], $bounce['reason']);
+      sparkpost_addbounce($bounce['jobid'], $bounce['eventqueue'], $bounce['hash'], $bounce['reason']);//add mailing bounce event
+      if($bounce['type'] == 'transactional') {
+        sparkpost_updateBounceActivity($bounce['activityid'],$bounce['reason']); //update transational email activity with bounced status
+      }
       $temparr = array(
-        'job_id' => $bounce['eventqueue']['job_id'],
-        'event_queue_id' => $bounce['eventqueue']['id'],
-        'hash' => $bounce['eventqueue']['hash'],
+        'job_id' => $bounce['jobid'],
+        'event_queue_id' => $bounce['eventqueue'],
+        'hash' => $bounce['hash'],
         'reason' => $bounce['reason']
       );
       array_push($bounces, $temparr);
     }
   }
-
   return civicrm_api3_create_success($bounces, $params);
 }

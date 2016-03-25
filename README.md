@@ -1,11 +1,15 @@
-# SparkPost / CiviCRM Integration
-Integrates SparkPost to CiviCRM, so email can be sent out over the SparkPost service and bounces can be processed in CiviCRM
+# SparkPost / CiviCRM Integration (Bulk and Transactional)  
+Integrates SparkPost to CiviCRM, so email can be sent out over the SparkPost service and bounces can be processed in CiviCRM. For bulk(civimail) and transactional emails.  
 
 ## What This Extension Does
-* Adds a tag to all outgoing CiviMail messages. The civi-generated return-path is added as a SparkPost tag, because like most SMTP services, SparkPost strips out the return-path header for its own.
-* Adds a scheduled job that uses SparkPost API to fetch bounce events and processes their bounces in CiviCRM. I use the hash included in the SparkPost tag
-* Adds Bounce type and Pattern that helps with marking emails on hold in CiviCRM that SparkPost has added to it's suppression list
+* Adds metadata to all outgoing bulk(CiviMail) AND transactional email messages for use later in bounce processing 
+* Creates and activity for all outgoing transactional email messages
+* Adds a scheduled job that uses SparkPost API to fetch bounce events and processes their bounces in CiviCRM
+* Adds Bounce type and pattern that helps with marking emails on hold in CiviCRM that SparkPost has added to it's suppression list
 * Inserts the mailing name in the SMTP message to SparkPost as the Campaign ID, useful when looking up results in SparkPost Web UI  
+* Processes bulk and transactional email bounces
+* Updates activity status for activities created for transactional emails  
+
 
 ##Setup Steps
 1. Create SparkPost Account
