@@ -274,6 +274,19 @@ function sparkpost_civicrm_alterMailParams(&$params, $context) {
 }
 
 /**
+ * Perform CiviCRM API call to grab event queue from hash
+ * @param  string $h  hash value
+ * @return array
+ */
+function sparkpost_queue($h) {
+  $result = civicrm_api3('MailingEventQueue', 'get', array(
+    'sequential' => 1,
+    'hash' => $h,
+  ));
+  return $result['values'][0];
+}
+
+/**
  * Perform CiviCRM API call to grab mailing job from hash
  * @param  string $h  hash value
  * @return array
