@@ -20,7 +20,7 @@ Integrates SparkPost to CiviCRM, so email can be sent out over the SparkPost ser
 4. Edit CiviCRM Outbound Email settings
   * Select mailer: SMTP
   * Smtp server: smtp.sparkpostmail.com
-  * Port: 587
+  * Port: (587 OR 2525)
   * Authentication: Yes
   * SMTP Username: SMTP_Injection
   * SMTP Password: [api key from step 3]
