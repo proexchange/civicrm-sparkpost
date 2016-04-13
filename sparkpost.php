@@ -184,8 +184,14 @@ function sparkpost_civicrm_alterMailParams(&$params, $context) {
 
     //Prep SparkPost metadata
     $mailing = sparkpost_mailing($hash);
+    $campaign = mb_convert_encoding($mailing['name'], 'UTF-8', 'auto');
+
+    if(mb_strlen($campaign, 'UTF-8') > 64) {
+      $campaign = substr($campaign, 0, 64);
+    }
+
     $tags = array(
-      'campaign_id' => $mailing['name'],
+      'campaign_id' => $campaign,
       'metadata' => array(
         'civi_type' => 'bulk',
         'civi_hash' => $hash,
