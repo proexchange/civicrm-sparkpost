@@ -65,12 +65,14 @@ function civicrm_api3_spark_post_Fetchbounces($params) {
       
       $temparr = array(
         'type' => $row->rcpt_meta->{'civi_type'},
-        'activityid' => $row->rcpt_meta->{'civi_activityid'},
         'eventqueue' => $row->rcpt_meta->{'civi_queue'},
         'jobid' => $row->rcpt_meta->{'civi_jobid'},
         'hash' => $row->rcpt_meta->{'civi_hash'},
         'reason' => $reason
-      );
+      ); 
+      if(!empty($row->rcpt_meta->{'civi_activityid'})){
+        $temparr['activityid'] = $row->rcpt_meta->{'civi_activityid'};
+      }
       array_push($holder, $temparr);
     }
   }
