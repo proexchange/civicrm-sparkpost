@@ -53,7 +53,7 @@ function sparkpost_civicrm_enable() {
   $field_type  = CRM_Core_DAO::singleValueQuery("SELECT DATA_TYPE FROM INFORMATION_SCHEMA.COLUMNS WHERE table_name = 'civicrm_mailing_bounce_type' AND COLUMN_NAME = 'name'");
   $field_length  = CRM_Core_DAO::singleValueQuery("SELECT CHARACTER_MAXIMUM_LENGTH FROM INFORMATION_SCHEMA.COLUMNS WHERE table_name = 'civicrm_mailing_bounce_type' AND COLUMN_NAME = 'name'");
 
-  if($field_type != "varchar" || $field_length < 24){
+  if($field_type != 'varchar' || $field_length < 24){
     CRM_Core_DAO::singleValueQuery("ALTER TABLE civicrm_mailing_bounce_type CHANGE name name VARCHAR(24) CHARACTER SET utf8 COLLATE utf8_unicode_ci NOT NULL COMMENT 'Type of bounce'");
   }
 
@@ -160,7 +160,7 @@ function sparkpost_civicrm_postEmailSend(&$params) {
   $result = civicrm_api3('Activity', 'create', array(
     'sequential' => 1,
     'id' => $activityID,
-    'status_id' => "Completed"
+    'status_id' => 'Completed'
   ));
   return TRUE;
 }
@@ -209,11 +209,11 @@ function sparkpost_civicrm_alterMailParams(&$params, $context) {
     }
 
     // GET activity type ID
-    $activityType = civicrm_api3('OptionValue', 'get', array('sequential' => 1,'option_group_id' => "activity_type",'name' => "Transactional Email"));
+    $activityType = civicrm_api3('OptionValue', 'get', array('sequential' => 1,'option_group_id' => 'activity_type','name' => 'Transactional Email'));
     $activityTypeID = $activityType['values'][0]['value'];
 
     // GET activity status ID
-    $activityStatus = civicrm_api3('OptionValue', 'get', array('sequential' => 1,'option_group_id' => "activity_status",'name' => "Pending"));
+    $activityStatus = civicrm_api3('OptionValue', 'get', array('sequential' => 1,'option_group_id' => 'activity_status','name' => 'Pending'));
     $activityStatusID = $activityStatus['values'][0]['value'];
 
     //Create activity
@@ -248,7 +248,7 @@ function sparkpost_civicrm_alterMailParams(&$params, $context) {
     //Prep email queue vars
     $mailingJob = civicrm_api3('MailingJob', 'get', array(
       'sequential' => 1,
-      'job_type' => "SparkPost Transactional Emails",
+      'job_type' => 'SparkPost Transactional Emails',
       'options' => array('limit' => 1)
     ));
     //Crate mailing event queue
@@ -380,10 +380,10 @@ function sparkpost_recentFetchSuccess() {
   try {
     $result = civicrm_api3('JobLog', 'get', array(
       'sequential' => 1,
-      'name' => "SparkPost Fetch Bounces",
+      'name' => 'SparkPost Fetch Bounces',
       'description' => array('LIKE' => "%Finished execution of SparkPost Fetch Bounces with result: Success%"),
-      'options' => array('sort' => "run_time DESC", 'limit' => 1),
-      'return' => array("run_time"),
+      'options' => array('sort' => 'run_time DESC', 'limit' => 1),
+      'return' => array('run_time'),
     ));
   }
   catch (CiviCRM_API3_Exception $e) {
@@ -405,16 +405,16 @@ function sparkpost_recentFetchSuccess() {
 function sparkpost_getFromAddresses(){
   $result = civicrm_api3('OptionValue', 'get', array(
     'sequential' => 1,
-    'return' => "label",
-    'option_group_id' => "from_email_address",
+    'return' => 'label',
+    'option_group_id' => 'from_email_address',
   ));
-  $first=TRUE;
-  $froms = '';
-  foreach($result['values'] as $item){
-    $itemparts = preg_split("/<|>/",$item['label']);
-    $froms.=$itemparts[1];
-    if($first) $froms.=',';
-    $first=FALSE;
+
+  foreach($result['values'] as $k => $value) {
+    $split = preg_split("/<|>/",$value['label']);
+    $froms .= $split[1];
+
+    if(count($result['values']) != ($k + 1))
+      $froms .= ',';
   }
   return $froms;
 }
@@ -512,14 +512,14 @@ function sparkpost_updateBounceActivity($activityID,$reason) {
     'id' => $activityID
   ));
 
-  $activityStatus = civicrm_api3('OptionValue', 'get', array('sequential' => 1,'option_group_id' => "activity_status",'name' => "Bounced"));
+  $activityStatus = civicrm_api3('OptionValue', 'get', array('sequential' => 1,'option_group_id' => 'activity_status','name' => 'Bounced'));
   $activityStatusID = $activityStatus['values'][0]['value'];
 
   $UpdatedActivity = civicrm_api3('Activity', 'create', array(
     'sequential' => 1,
     'id' => $activityID,
     'status_id' => $activityStatusID,
-    'details' => "<p>BOUNCE REASON: ".$reason."</p><hr>".$activity['values'][0]['details']
+    'details' => '<p>BOUNCE REASON: ' . $reason . '</p><hr>' . $activity['values'][0]['details']
   ));
   return TRUE;
 }
@@ -567,7 +567,7 @@ function sparkpost_addOptionValues() {
 function sparkpost_mailingsCheck(){
   //Add mailing - holds all transactional emails for bounce processing
   //check for existing mailing 
-  $mailingCheck = civicrm_api3('Mailing', 'get', array('name' => "SparkPost Transactional Emails",'domain_id' => CRM_Core_Config::domainID(),'options' => array('limit' => 1)));
+  $mailingCheck = civicrm_api3('Mailing', 'get', array('name' => 'SparkPost Transactional Emails','domain_id' => CRM_Core_Config::domainID(),'options' => array('limit' => 1)));
 
   //add mailing if it does not exist 
   if($mailingCheck['count'] < 1){
