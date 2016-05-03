@@ -28,7 +28,7 @@ function civicrm_api3_spark_post_Fetchbounces($params) {
   sparkpost_mailingsCheck();
 
   //Prepare API call to SparkPost
-  if(empty($params['events'])) $params['events']="bounce,delay,policy_rejection,out_of_band,spam_complaint";
+  if(empty($params['events'])) $params['events']="bounce,policy_rejection,out_of_band,spam_complaint";
   $ch_api ='https://api.sparkpost.com/api/v1/message-events?events='.$params['events'].'&friendly_froms='.sparkpost_getFromAddresses();  
   if(!empty($params['date_filter'])) {
     $lgts = sparkpost_recentFetchSuccess();
