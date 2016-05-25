@@ -403,6 +403,7 @@ function sparkpost_recentFetchSuccess() {
  * @return string
  */
 function sparkpost_getFromAddresses(){
+  $froms = '';
   $result = civicrm_api3('OptionValue', 'get', array(
     'sequential' => 1,
     'return' => 'label',
