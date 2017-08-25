@@ -157,7 +157,7 @@ function sparkpost_civicrm_alterMailParams(&$params, $context) {
 
   // If this is a bulk email
   if($context == 'civimail') {
-    $temphash = explode('.',$params['Return-Path']);
+    $temphash = explode(CRM_Core_Config::Singleton()->verpSeparator, $params['Return-Path']);
     $hash = substr($temphash[3], 0, strpos($temphash[3], '@'));
 
     $mailEventQueue = civicrm_api3('MailingEventQueue', 'get', array(
