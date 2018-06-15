@@ -294,17 +294,18 @@ function sparkpost_civicrm_alterMailParams(&$params, $context) {
       }
     }
   }
-  sparkpost_debug('tags', $tags);
-
-  // Add SparkPost metadata to SMTP headers
+  if(!empty($tags)){
+    sparkpost_debug('tags', $tags);
+  }
+    // Add SparkPost metadata to SMTP headers
   if(isset($tags)) {
     $json = json_encode($tags);
     $params['headers']['X-MSYS-API'] = $json;
   }
-
-  sparkpost_debug('json', $json);
+  if(!empty($json)){
+    sparkpost_debug('json', $json);
+  }
   sparkpost_debug('params', $params);
-
   sparkpost_debug('/Hooked civicrm_alterMailParams');
   return TRUE;
 }
