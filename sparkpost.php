@@ -183,9 +183,8 @@ function sparkpost_civicrm_alterMailParams(&$params, $context) {
       )
     );
   }
-
   // If this is a transactional email
-  else {
+  elseif($context == 'singleEmail') {
     /**
      * The if-statement below is a temporary solution, until a bug which causes
      * the civicrm_alterMailParams hook to be ran twice is fixed.
