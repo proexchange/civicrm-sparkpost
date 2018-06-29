@@ -217,7 +217,7 @@ function sparkpost_civicrm_alterMailParams(&$params, $context) {
 
       // Create activity
       $activityParams = array(
-        'source_record_id' => $sourceContactID,
+        'source_contact_id' => $sourceContactID,
         'activity_type_id' => $activityTypeID,
         'subject' => $params['subject'], // empty on contrib?
         'activity_date_time' => date('YmdHis'),
