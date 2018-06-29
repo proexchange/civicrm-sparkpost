@@ -466,6 +466,7 @@ function sparkpost_getFromAddresses() {
     'sequential' => 1,
     'return' => 'label',
     'option_group_id' => 'from_email_address',
+    'options' => array('limit' => 0),
   ));
 
   foreach($result['values'] as $k => $value) {
